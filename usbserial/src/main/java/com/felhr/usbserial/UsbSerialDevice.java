@@ -18,7 +18,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
 {
     private static final String CLASS_ID = UsbSerialDevice.class.getSimpleName();
 
-    private static boolean mr1Version;
+    private boolean mr1Version;
     protected final UsbDevice device;
     protected final UsbDeviceConnection connection;
 
@@ -36,17 +36,13 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
 
     protected boolean asyncMode;
 
-    // Get Android version if version < 4.3 It is not going to be asynchronous read operations
-    static
-    {
-        if(android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1)
-            mr1Version = true;
-        else
-            mr1Version = false;
-    }
-
-    public UsbSerialDevice(UsbDevice device, UsbDeviceConnection connection)
-    {
+    public UsbSerialDevice(UsbDevice device, UsbDeviceConnection connection) {
+        // Get Android version if version < 4.3 It is not going to be asynchronous read operations
+        if(android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            this.mr1Version = true;
+        } else {
+            this.mr1Version = false;
+        }
         this.device = device;
         this.connection = connection;
         this.asyncMode = true;
@@ -99,6 +95,14 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
             return true;
         else
             return false;
+    }
+
+    public boolean getMr1Version() {
+        return this.mr1Version;
+    }
+
+    public void setMr1Version(boolean mr1Version) {
+        this.mr1Version = mr1Version;
     }
 
     // Common Usb Serial Operations (I/O Asynchronous)
