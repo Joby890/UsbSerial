@@ -45,14 +45,14 @@ public class CDCSerialDevice extends UsbSerialDevice
     private UsbEndpoint outEndpoint;
     private UsbRequest requestIN;
 
-    public CDCSerialDevice(UsbDevice device, UsbDeviceConnection connection)
+    public CDCSerialDevice(UsbDevice device, UsbDeviceConnection connection, boolean mr1Version)
     {
-        this(device, connection, -1);
+        this(device, connection, mr1Version, -1);
     }
 
-    public CDCSerialDevice(UsbDevice device, UsbDeviceConnection connection, int iface)
+    public CDCSerialDevice(UsbDevice device, UsbDeviceConnection connection, boolean mr1Version, int iface)
     {
-        super(device, connection);
+        super(device, connection, mr1Version);
         mInterface = device.getInterface(iface >= 0 ? iface : findFirstCDC(device));
     }
 
