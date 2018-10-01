@@ -18,7 +18,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
 {
     private static final String CLASS_ID = UsbSerialDevice.class.getSimpleName();
 
-    private static boolean mr1Version;
+    private boolean mr1Version;
     protected final UsbDevice device;
     protected final UsbDeviceConnection connection;
 
@@ -36,29 +36,29 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
 
     protected boolean asyncMode;
 
-    // Get Android version if version < 4.3 It is not going to be asynchronous read operations
-    static
-    {
-        if(android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1)
-            mr1Version = true;
-        else
-            mr1Version = false;
+    public UsbSerialDevice(UsbDevice device, UsbDeviceConnection connection) {
+        // Get Android version if version < 4.3 It is not going to be asynchronous read operations
+        this(device, connection, android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1);
     }
-
-    public UsbSerialDevice(UsbDevice device, UsbDeviceConnection connection)
-    {
+    
+    public UsbSerialDevice(UsbDevice device, UsbDeviceConnection connection, boolean mr1Version) {
         this.device = device;
         this.connection = connection;
         this.asyncMode = true;
         serialBuffer = new SerialBuffer(mr1Version);
+        this.mr1Version = mr1Version;
     }
 
-    public static UsbSerialDevice createUsbSerialDevice(UsbDevice device, UsbDeviceConnection connection)
+    public static UsbSerialDevice createUsbSerialDevice(UsbDevice device, UsbDeviceConnection connection) {
+        return createUsbSerialDevice(device, connection, android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1);
+    }
+
+    public static UsbSerialDevice createUsbSerialDevice(UsbDevice device, UsbDeviceConnection connection, boolean mr1Version)
     {
-        return createUsbSerialDevice(device, connection, -1);
+        return createUsbSerialDevice(device, connection, mr1Version, -1);
     }
 
-    public static UsbSerialDevice createUsbSerialDevice(UsbDevice device, UsbDeviceConnection connection, int iface)
+    public static UsbSerialDevice createUsbSerialDevice(UsbDevice device, UsbDeviceConnection connection, boolean mr1Version, int iface)
     {
 		/*
 		 * It checks given vid and pid and will return a custom driver or a CDC serial driver.
@@ -77,7 +77,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
         else if(CH34xIds.isDeviceSupported(vid, pid))
             return new CH34xSerialDevice(device, connection, iface);
         else if(isCdcDevice(device))
-            return new CDCSerialDevice(device, connection, iface);
+            return new CDCSerialDevice(device, connection, mr1Version, iface);
         else
             return null;
     }
@@ -99,6 +99,14 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
             return true;
         else
             return false;
+    }
+
+    public boolean getMr1Version() {
+        return this.mr1Version;
+    }
+
+    public void setMr1Version(boolean mr1Version) {
+        this.mr1Version = mr1Version;
     }
 
     // Common Usb Serial Operations (I/O Asynchronous)
