@@ -148,6 +148,9 @@ public class SerialBuffer
                     e.printStackTrace();
                 }
             }
+            if(position == -1) {
+                return new byte[0];
+            }
             byte[] dst =  Arrays.copyOfRange(buffer, 0, position);
             if(debugging)
                 UsbSerialDebugger.printLogGet(dst, true);
